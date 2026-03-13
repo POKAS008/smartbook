@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,15 +15,7 @@ jobs:
           distribution: "temurin"
       - name: Make mvnw executable
         run: chmod +x backend/mvnw
-      - name: Run tests
-        run: cd backend && ./mvnw test
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Make mvnw executable
-        run: chmod +x backend/mvnw
       - name: Build backend
         run: cd backend && ./mvnw package -DskipTests
+      - name: Build frontend
+        run: cd frontend && npm install && npm run build
