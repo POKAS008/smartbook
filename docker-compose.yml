@@ -1,11 +1,9 @@
 version: "3.8"
 
 services:
-
   postgres:
     image: postgres:15
     container_name: smartbook-db
-    restart: always
     environment:
       POSTGRES_DB: smartbook
       POSTGRES_USER: postgres
@@ -17,9 +15,26 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: smartbook-redis
     ports:
       - "6380:6379"
+
+  backend:
+    build: ./backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smartbook
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: smartbook123
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
 
 volumes:
   smartbook_pgdata:
