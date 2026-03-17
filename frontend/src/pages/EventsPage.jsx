@@ -5,42 +5,42 @@ import AuthModal from '../components/AuthModal';
 import api from '../api/axios';
 
 const CATEGORY_THEMES = {
-  'Music':       { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
-  'Sports':      { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
-  'Food':        { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
-  'Art':         { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
-  'Tech':        { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
-  'Theater':     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
-  'Fashion':     { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
-  'Concert':     { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', light: '#eff6ff', color: '#3b82f6', emoji: '🎤' },
-  'Graduation':  { grad: 'linear-gradient(90deg,#818cf8,#c084fc)', light: '#eef2ff', color: '#4f46e5', emoji: '🎓' },
-  'Nature':      { grad: 'linear-gradient(90deg,#34d399,#059669)', light: '#ecfdf5', color: '#059669', emoji: '🌿' },
-  'Dance':       { grad: 'linear-gradient(90deg,#f472b6,#ec4899)', light: '#fdf2f8', color: '#db2777', emoji: '💃' },
-  'Awards':      { grad: 'linear-gradient(90deg,#fbbf24,#f59e0b)', light: '#fffbeb', color: '#d97706', emoji: '🏆' },
-  'Swimming':    { grad: 'linear-gradient(90deg,#38bdf8,#0284c7)', light: '#f0f9ff', color: '#0284c7', emoji: '🏊' },
-  'Charity':     { grad: 'linear-gradient(90deg,#fb7185,#e11d48)', light: '#fff1f2', color: '#e11d48', emoji: '❤️' },
-  'Tennis':      { grad: 'linear-gradient(90deg,#a3e635,#65a30d)', light: '#f7fee7', color: '#65a30d', emoji: '🎾' },
-  'Networking':  { grad: 'linear-gradient(90deg,#c084fc,#7c3aed)', light: '#faf5ff', color: '#7c3aed', emoji: '🔮' },
-  'Festival':    { grad: 'linear-gradient(90deg,#fdba74,#ea580c)', light: '#fff7ed', color: '#ea580c', emoji: '🎪' },
-  'Beach':       { grad: 'linear-gradient(90deg,#67e8f9,#0891b2)', light: '#ecfeff', color: '#0891b2', emoji: '🌊' },
-  'Golf':        { grad: 'linear-gradient(90deg,#86efac,#15803d)', light: '#f0fdf4', color: '#15803d', emoji: '⛳' },
-  'Boxing':      { grad: 'linear-gradient(90deg,#fca5a5,#b91c1c)', light: '#fef2f2', color: '#b91c1c', emoji: '🥊' },
-  'Conference':  { grad: 'linear-gradient(90deg,#94a3b8,#475569)', light: '#f1f5f9', color: '#334155', emoji: '🤝' },
-  'Workshop':    { grad: 'linear-gradient(90deg,#fb923c,#ea580c)', light: '#fff7ed', color: '#c2410c', emoji: '🛠️' },
-  'Movie':       { grad: 'linear-gradient(90deg,#4ade80,#059669)', light: '#f0fdf4', color: '#16a34a', emoji: '🎬' },
-  'Gaming':      { grad: 'linear-gradient(90deg,#f472b6,#a78bfa)', light: '#fdf2f8', color: '#9333ea', emoji: '🎮' },
-  'Fitness':     { grad: 'linear-gradient(90deg,#fb7185,#f43f5e)', light: '#fff1f2', color: '#e11d48', emoji: '💪' },
-  'Coding':      { grad: 'linear-gradient(90deg,#38bdf8,#3b82f6)', light: '#eff6ff', color: '#1d4ed8', emoji: '💻' },
-  'Travel':      { grad: 'linear-gradient(90deg,#2dd4bf,#0d9488)', light: '#f0fdfa', color: '#0f766e', emoji: '✈️' },
-  'Photography': { grad: 'linear-gradient(90deg,#9ca3af,#4b5563)', light: '#f9fafb', color: '#374151', emoji: '📷' },
-  'Science':     { grad: 'linear-gradient(90deg,#818cf8,#4f46e5)', light: '#eef2ff', color: '#3730a3', emoji: '🔬' },
-  'Holiday':     { grad: 'linear-gradient(90deg,#f87171,#dc2626)', light: '#fef2f2', color: '#991b1b', emoji: '🎄' },
-  'Business':    { grad: 'linear-gradient(90deg,#64748b,#1e293b)', light: '#f8fafc', color: '#0f172a', emoji: '💼' },
-  'Wedding':     { grad: 'linear-gradient(90deg,#fda4af,#fb7185)', light: '#fff1f2', color: '#be123c', emoji: '💍' },
-  'Party':       { grad: 'linear-gradient(90deg,#fde047,#eab308)', light: '#fefce8', color: '#a16207', emoji: '🥳' },
-  'Health':      { grad: 'linear-gradient(90deg,#a7f3d0,#10b981)', light: '#ecfdf5', color: '#047857', emoji: '🏥' },
-  'Academic':    { grad: 'linear-gradient(90deg,#c4b5fd,#7c3aed)', light: '#f5f3ff', color: '#5b21b6', emoji: '📚' },
-  'Yoga':        { grad: 'linear-gradient(90deg,#ddd6fe,#8b5cf6)', light: '#f5f3ff', color: '#6d28d9', emoji: '🧘' },
+  'music':       { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
+  'sports':      { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
+  'food':        { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
+  'art':         { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
+  'tech':        { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
+  'theater':     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
+  'fashion':     { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
+  'concert':     { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', light: '#eff6ff', color: '#3b82f6', emoji: '🎤' },
+  'graduation':  { grad: 'linear-gradient(90deg,#818cf8,#c084fc)', light: '#eef2ff', color: '#4f46e5', emoji: '🎓' },
+  'nature':      { grad: 'linear-gradient(90deg,#34d399,#059669)', light: '#ecfdf5', color: '#059669', emoji: '🌿' },
+  'dance':       { grad: 'linear-gradient(90deg,#f472b6,#ec4899)', light: '#fdf2f8', color: '#db2777', emoji: '💃' },
+  'awards':      { grad: 'linear-gradient(90deg,#fbbf24,#f59e0b)', light: '#fffbeb', color: '#d97706', emoji: '🏆' },
+  'swimming':    { grad: 'linear-gradient(90deg,#38bdf8,#0284c7)', light: '#f0f9ff', color: '#0284c7', emoji: '🏊' },
+  'charity':     { grad: 'linear-gradient(90deg,#fb7185,#e11d48)', light: '#fff1f2', color: '#e11d48', emoji: '❤️' },
+  'tennis':      { grad: 'linear-gradient(90deg,#a3e635,#65a30d)', light: '#f7fee7', color: '#65a30d', emoji: '🎾' },
+  'networking':  { grad: 'linear-gradient(90deg,#c084fc,#7c3aed)', light: '#faf5ff', color: '#7c3aed', emoji: '🔮' },
+  'festival':    { grad: 'linear-gradient(90deg,#fdba74,#ea580c)', light: '#fff7ed', color: '#ea580c', emoji: '🎪' },
+  'beach':       { grad: 'linear-gradient(90deg,#67e8f9,#0891b2)', light: '#ecfeff', color: '#0891b2', emoji: '🌊' },
+  'golf':        { grad: 'linear-gradient(90deg,#86efac,#15803d)', light: '#f0fdf4', color: '#15803d', emoji: '⛳' },
+  'boxing':      { grad: 'linear-gradient(90deg,#fca5a5,#b91c1c)', light: '#fef2f2', color: '#b91c1c', emoji: '🥊' },
+  'conference':  { grad: 'linear-gradient(90deg,#94a3b8,#475569)', light: '#f1f5f9', color: '#334155', emoji: '🤝' },
+  'workshop':    { grad: 'linear-gradient(90deg,#fb923c,#ea580c)', light: '#fff7ed', color: '#c2410c', emoji: '🛠️' },
+  'movie':       { grad: 'linear-gradient(90deg,#4ade80,#059669)', light: '#f0fdf4', color: '#16a34a', emoji: '🎬' },
+  'gaming':      { grad: 'linear-gradient(90deg,#f472b6,#a78bfa)', light: '#fdf2f8', color: '#9333ea', emoji: '🎮' },
+  'fitness':     { grad: 'linear-gradient(90deg,#fb7185,#f43f5e)', light: '#fff1f2', color: '#e11d48', emoji: '💪' },
+  'coding':      { grad: 'linear-gradient(90deg,#38bdf8,#3b82f6)', light: '#eff6ff', color: '#1d4ed8', emoji: '💻' },
+  'travel':      { grad: 'linear-gradient(90deg,#2dd4bf,#0d9488)', light: '#f0fdfa', color: '#0f766e', emoji: '✈️' },
+  'photography': { grad: 'linear-gradient(90deg,#9ca3af,#4b5563)', light: '#f9fafb', color: '#374151', emoji: '📷' },
+  'science':     { grad: 'linear-gradient(90deg,#818cf8,#4f46e5)', light: '#eef2ff', color: '#3730a3', emoji: '🔬' },
+  'holiday':     { grad: 'linear-gradient(90deg,#f87171,#dc2626)', light: '#fef2f2', color: '#991b1b', emoji: '🎄' },
+  'business':    { grad: 'linear-gradient(90deg,#64748b,#1e293b)', light: '#f8fafc', color: '#0f172a', emoji: '💼' },
+  'wedding':     { grad: 'linear-gradient(90deg,#fda4af,#fb7185)', light: '#fff1f2', color: '#be123c', emoji: '💍' },
+  'party':       { grad: 'linear-gradient(90deg,#fde047,#eab308)', light: '#fefce8', color: '#a16207', emoji: '🥳' },
+  'health':      { grad: 'linear-gradient(90deg,#a7f3d0,#10b981)', light: '#ecfdf5', color: '#047857', emoji: '🏥' },
+  'academic':    { grad: 'linear-gradient(90deg,#c4b5fd,#7c3aed)', light: '#f5f3ff', color: '#5b21b6', emoji: '📚' },
+  'yoga':        { grad: 'linear-gradient(90deg,#ddd6fe,#8b5cf6)', light: '#f5f3ff', color: '#6d28d9', emoji: '🧘' },
 
   // default — fallback if category doesn't match
   'default':     { grad: 'linear-gradient(90deg,#a78bfa,#60a5fa)', light: '#eff6ff', color: '#6366f1', emoji: '🎉' },
@@ -48,9 +48,10 @@ const CATEGORY_THEMES = {
 
 // helper function — call this instead of THEMES[i % THEMES.length]
 const getTheme = (category) => {
-  return CATEGORY_THEMES[category] || CATEGORY_THEMES['default'];
+  // Convert the incoming category to lowercase before looking it up
+  const normalized = category ? category.toLowerCase() : 'default';
+  return CATEGORY_THEMES[normalized] || CATEGORY_THEMES['default'];
 };
-
 export default function EventsPage() {
   const [events,   setEvents]   = useState([]);
   const [loading,  setLoading]  = useState(true);
