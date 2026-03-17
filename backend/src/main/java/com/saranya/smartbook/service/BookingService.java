@@ -16,8 +16,8 @@ import java.util.List;
 public class BookingService {
 
     private final BookingRepository bookingRepo;
-    private final EventRepository eventRepo;
-    private final UserRepository userRepo;
+    private final EventRepository   eventRepo;
+    private final UserRepository    userRepo;
 
     public BookingService(BookingRepository bookingRepo,
                           EventRepository eventRepo,
@@ -51,6 +51,11 @@ public class BookingService {
         booking.setBookedAt(LocalDateTime.now());
 
         return bookingRepo.save(booking);
+    }
+
+    // ✅ ADDED
+    public List<Booking> getAllBookings() {
+        return bookingRepo.findAll();
     }
 
     public List<Booking> getUserBookings(Long userId) {

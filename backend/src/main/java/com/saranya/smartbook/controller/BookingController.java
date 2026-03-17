@@ -21,8 +21,17 @@ public class BookingController {
     public Booking createBooking(@RequestBody Map<String, Object> request) {
         Long eventId = Long.valueOf(request.get("eventId").toString());
         Long userId  = Long.valueOf(request.get("userId").toString());
-        int  seats   = Integer.parseInt(request.get("seats").toString());
+        // Accept both "seats" and "numberOfSeats" from frontend
+        int seats = Integer.parseInt(
+            request.getOrDefault("numberOfSeats",
+            request.getOrDefault("seats", "1")).toString()
+        );
         return bookingService.createBooking(eventId, userId, seats);
+    }
+
+    @GetMapping
+    public List<Booking> getAllBookings() {
+        return bookingService.getAllBookings();
     }
 
     @GetMapping("/user/{userId}")

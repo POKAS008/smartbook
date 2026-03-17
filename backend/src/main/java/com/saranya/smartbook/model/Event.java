@@ -18,7 +18,6 @@ public class Event {
     private LocalDateTime eventDate;
     private Integer totalSeats;
 
-    @Version
     private Integer availableSeats;
     private BigDecimal price;
 
