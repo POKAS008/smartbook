@@ -1,227 +1,134 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import AuthModal from '../components/AuthModal';
 import api from '../api/axios';
 
+const FIELDS = [
+  { key: 'title',         label: 'Event Title',  type: 'text'           },
+  { key: 'venue',         label: 'Venue',         type: 'text'           },
+  { key: 'eventDate',     label: 'Date',          type: 'datetime-local' },
+  { key: 'price',         label: 'Price ($)',     type: 'number'         },
+  { key: 'totalSeats',    label: 'Total Seats',   type: 'number'         },
+  { key: 'category',      label: 'Category',      type: 'text'           },
+];
+
 const CATEGORY_THEMES = {
-  'music':       { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
-  'sports':      { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
-  'food':        { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
-  'art':         { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
-  'tech':        { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
-  'theater':     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
-  'fashion':     { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
-  'concert':     { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', light: '#eff6ff', color: '#3b82f6', emoji: '🎤' },
-  'graduation':  { grad: 'linear-gradient(90deg,#818cf8,#c084fc)', light: '#eef2ff', color: '#4f46e5', emoji: '🎓' },
-  'nature':      { grad: 'linear-gradient(90deg,#34d399,#059669)', light: '#ecfdf5', color: '#059669', emoji: '🌿' },
-  'dance':       { grad: 'linear-gradient(90deg,#f472b6,#ec4899)', light: '#fdf2f8', color: '#db2777', emoji: '💃' },
-  'awards':      { grad: 'linear-gradient(90deg,#fbbf24,#f59e0b)', light: '#fffbeb', color: '#d97706', emoji: '🏆' },
-  'swimming':    { grad: 'linear-gradient(90deg,#38bdf8,#0284c7)', light: '#f0f9ff', color: '#0284c7', emoji: '🏊' },
-  'charity':     { grad: 'linear-gradient(90deg,#fb7185,#e11d48)', light: '#fff1f2', color: '#e11d48', emoji: '❤️' },
-  'tennis':      { grad: 'linear-gradient(90deg,#a3e635,#65a30d)', light: '#f7fee7', color: '#65a30d', emoji: '🎾' },
-  'networking':  { grad: 'linear-gradient(90deg,#c084fc,#7c3aed)', light: '#faf5ff', color: '#7c3aed', emoji: '🔮' },
-  'festival':    { grad: 'linear-gradient(90deg,#fdba74,#ea580c)', light: '#fff7ed', color: '#ea580c', emoji: '🎪' },
-  'beach':       { grad: 'linear-gradient(90deg,#67e8f9,#0891b2)', light: '#ecfeff', color: '#0891b2', emoji: '🌊' },
-  'golf':        { grad: 'linear-gradient(90deg,#86efac,#15803d)', light: '#f0fdf4', color: '#15803d', emoji: '⛳' },
-  'boxing':      { grad: 'linear-gradient(90deg,#fca5a5,#b91c1c)', light: '#fef2f2', color: '#b91c1c', emoji: '🥊' },
-  'conference':  { grad: 'linear-gradient(90deg,#94a3b8,#475569)', light: '#f1f5f9', color: '#334155', emoji: '🤝' },
-  'workshop':    { grad: 'linear-gradient(90deg,#fb923c,#ea580c)', light: '#fff7ed', color: '#c2410c', emoji: '🛠️' },
-  'movie':       { grad: 'linear-gradient(90deg,#4ade80,#059669)', light: '#f0fdf4', color: '#16a34a', emoji: '🎬' },
-  'gaming':      { grad: 'linear-gradient(90deg,#f472b6,#a78bfa)', light: '#fdf2f8', color: '#9333ea', emoji: '🎮' },
-  'fitness':     { grad: 'linear-gradient(90deg,#fb7185,#f43f5e)', light: '#fff1f2', color: '#e11d48', emoji: '💪' },
-  'coding':      { grad: 'linear-gradient(90deg,#38bdf8,#3b82f6)', light: '#eff6ff', color: '#1d4ed8', emoji: '💻' },
-  'travel':      { grad: 'linear-gradient(90deg,#2dd4bf,#0d9488)', light: '#f0fdfa', color: '#0f766e', emoji: '✈️' },
-  'photography': { grad: 'linear-gradient(90deg,#9ca3af,#4b5563)', light: '#f9fafb', color: '#374151', emoji: '📷' },
-  'science':     { grad: 'linear-gradient(90deg,#818cf8,#4f46e5)', light: '#eef2ff', color: '#3730a3', emoji: '🔬' },
-  'holiday':     { grad: 'linear-gradient(90deg,#f87171,#dc2626)', light: '#fef2f2', color: '#991b1b', emoji: '🎄' },
-  'business':    { grad: 'linear-gradient(90deg,#64748b,#1e293b)', light: '#f8fafc', color: '#0f172a', emoji: '💼' },
-  'wedding':     { grad: 'linear-gradient(90deg,#fda4af,#fb7185)', light: '#fff1f2', color: '#be123c', emoji: '💍' },
-  'party':       { grad: 'linear-gradient(90deg,#fde047,#eab308)', light: '#fefce8', color: '#a16207', emoji: '🥳' },
-  'health':      { grad: 'linear-gradient(90deg,#a7f3d0,#10b981)', light: '#ecfdf5', color: '#047857', emoji: '🏥' },
-  'academic':    { grad: 'linear-gradient(90deg,#c4b5fd,#7c3aed)', light: '#f5f3ff', color: '#5b21b6', emoji: '📚' },
-  'yoga':        { grad: 'linear-gradient(90deg,#ddd6fe,#8b5cf6)', light: '#f5f3ff', color: '#6d28d9', emoji: '🧘' },
-
-  // default — fallback if category doesn't match
-  'default':     { grad: 'linear-gradient(90deg,#a78bfa,#60a5fa)', light: '#eff6ff', color: '#6366f1', emoji: '🎉' },
+  'music':       { grad: 'linear-gradient(90deg,#f87171,#fb923c)', emoji: '🎵' },
+  'sports':      { grad: 'linear-gradient(90deg,#fb923c,#facc15)', emoji: '⚽' },
+  'food':        { grad: 'linear-gradient(90deg,#facc15,#4ade80)', emoji: '🍕' },
+  'art':         { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', emoji: '🎨' },
+  'tech':        { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', emoji: '💻' },
+  'theater':     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', emoji: '🎭' },
+  'fashion':     { grad: 'linear-gradient(90deg,#f87171,#fb923c)', emoji: '👗' },
+  'concert':     { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', emoji: '🎤' },
+  'graduation':  { grad: 'linear-gradient(90deg,#818cf8,#c084fc)', emoji: '🎓' },
+  'nature':      { grad: 'linear-gradient(90deg,#34d399,#059669)', emoji: '🌿' },
+  'dance':       { grad: 'linear-gradient(90deg,#f472b6,#ec4899)', emoji: '💃' },
+  'awards':      { grad: 'linear-gradient(90deg,#fbbf24,#f59e0b)', emoji: '🏆' },
+  'swimming':    { grad: 'linear-gradient(90deg,#38bdf8,#0284c7)', emoji: '🏊' },
+  'charity':     { grad: 'linear-gradient(90deg,#fb7185,#e11d48)', emoji: '❤️' },
+  'tennis':      { grad: 'linear-gradient(90deg,#a3e635,#65a30d)', emoji: '🎾' },
+  'networking':  { grad: 'linear-gradient(90deg,#c084fc,#7c3aed)', emoji: '🔮' },
+  'festival':    { grad: 'linear-gradient(90deg,#fdba74,#ea580c)', emoji: '🎪' },
+  'beach':       { grad: 'linear-gradient(90deg,#67e8f9,#0891b2)', emoji: '🌊' },
+  'golf':        { grad: 'linear-gradient(90deg,#86efac,#15803d)', emoji: '⛳' },
+  'boxing':      { grad: 'linear-gradient(90deg,#fca5a5,#b91c1c)', emoji: '🥊' },
+  'conference':  { grad: 'linear-gradient(90deg,#94a3b8,#475569)', emoji: '🤝' },
+  'workshop':    { grad: 'linear-gradient(90deg,#fb923c,#ea580c)', emoji: '🛠️' },
+  'movie':       { grad: 'linear-gradient(90deg,#4ade80,#059669)', emoji: '🎬' },
+  'gaming':      { grad: 'linear-gradient(90deg,#f472b6,#a78bfa)', emoji: '🎮' },
+  'fitness':     { grad: 'linear-gradient(90deg,#fb7185,#f43f5e)', emoji: '💪' },
+  'coding':      { grad: 'linear-gradient(90deg,#38bdf8,#3b82f6)', emoji: '💻' },
+  'travel':      { grad: 'linear-gradient(90deg,#2dd4bf,#0d9488)', emoji: '✈️' },
+  'photography': { grad: 'linear-gradient(90deg,#9ca3af,#4b5563)', emoji: '📷' },
+  'science':     { grad: 'linear-gradient(90deg,#818cf8,#4f46e5)', emoji: '🔬' },
+  'holiday':     { grad: 'linear-gradient(90deg,#f87171,#dc2626)', emoji: '🎄' },
+  'business':    { grad: 'linear-gradient(90deg,#64748b,#1e293b)', emoji: '💼' },
+  'wedding':     { grad: 'linear-gradient(90deg,#fda4af,#fb7185)', emoji: '💍' },
+  'party':       { grad: 'linear-gradient(90deg,#fde047,#eab308)', emoji: '🥳' },
+  'health':      { grad: 'linear-gradient(90deg,#a7f3d0,#10b981)', emoji: '🏥' },
+  'academic':    { grad: 'linear-gradient(90deg,#c4b5fd,#7c3aed)', emoji: '📚' },
+  'yoga':        { grad: 'linear-gradient(90deg,#ddd6fe,#8b5cf6)', emoji: '🧘' },
+  'default':     { grad: 'linear-gradient(90deg,#a78bfa,#60a5fa)', emoji: '🎉' },
 };
 
-// helper function — call this instead of THEMES[i % THEMES.length]
-const getTheme = (category) => {
-  // Convert the incoming category to lowercase before looking it up
-  const normalized = category ? category.toLowerCase() : 'default';
-  return CATEGORY_THEMES[normalized] || CATEGORY_THEMES['default'];
-};
-export default function EventsPage() {
-  const [events,   setEvents]   = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [showAuth, setShowAuth] = useState(false);
-  const navigate    = useNavigate();
-  const { user }    = useAuth();
+const empty = { title: '', venue: '', eventDate: '', price: '', totalSeats: '', category: '' };
 
-  useEffect(() => {
+export default function AdminPage() {
+  const [events,  setEvents]  = useState([]);
+  const [form,    setForm]    = useState(empty);
+  const [loading, setLoading] = useState(true);
+  const [saving,  setSaving]  = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [tab,     setTab]     = useState('events');
+
+  const fetchEvents = () => {
     api.get('/events').then(res => {
       setEvents(res.data);
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, []);
+  };
 
-  const handleBook = (eventId) => {
-    if (!user) {
-      setShowAuth(true);
-      return;
+  useEffect(() => { fetchEvents(); }, []);
+
+  const handleAdd = async () => {
+    setSaving(true);
+    try {
+      await api.post('/events', {
+        ...form,
+        price:      parseFloat(form.price),
+        totalSeats: parseInt(form.totalSeats),
+      });
+      setForm(empty);
+      setSuccess(true);
+      fetchEvents();
+      setTimeout(() => { setSuccess(false); setTab('events'); }, 1500);
+    } catch {
+      alert('Failed to add event.');
     }
-    navigate(`/book/${eventId}`);
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this event?')) return;
+    await api.delete(`/events/${id}`);
+    fetchEvents();
   };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8' }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid #f0f0f0', padding: '2.5rem 2rem 0', maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <div>
+            <div style={{ height: '4px', width: '40px', borderRadius: '999px', background: 'linear-gradient(90deg,#0ea5e9,#7c3aed)', marginBottom: '0.75rem' }} />
+            <h1 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#111', letterSpacing: '-0.02em' }}>Admin Panel</h1>
+            <p style={{ color: '#aaa', fontSize: '0.85rem', marginTop: '0.2rem' }}>Manage your events</p>
+          </div>
 
-      {/* Hero */}
-      <div style={{
-        background: '#fff',
-        padding: '0rem 0rem 1.0rem',
-        textAlign: 'center',
-        borderBottom: '1px solid #f0f0f0',
-      }}>
-        <h1 style={{
-          fontSize: '2.0rem',
-          fontWeight: '900',
-          color: '#111',
-          lineHeight: 1.15,
-          letterSpacing: '-0.03em',
-          marginBottom: '0.75rem',
-        }}>
-          Book Your Next<br />
-          <span style={{
-            background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}>
-            Unforgettable Experience
-          </span>
-        </h1>
-
-        <p style={{ color: '#888', fontSize: '1rem', maxWidth: '420px', margin: '0 auto' }}>
-          Discover and book the best events happening near you
-        </p>
-      </div>
-
-      {/* Grid */}
-      <div style={{ padding: '2.5rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.75rem' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#111' }}>Upcoming Events</h2>
-          <span style={{
-            background: '#f3f4f6', color: '#555',
-            padding: '0.15rem 0.6rem', borderRadius: '999px',
-            fontSize: '0.78rem', fontWeight: '700',
-          }}>
-            {events.length}
-          </span>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {[
+              { label: 'Total Events', value: events.length, color: '#0ea5e9', bg: '#e0f2fe' },
+              { label: 'Total Seats',  value: events.reduce((a, e) => a + (e.totalSeats || 0), 0), color: '#7c3aed', bg: '#ede9fe' },
+            ].map(({ label, value, color, bg }) => (
+              <div key={label} style={{ background: bg, borderRadius: '14px', padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '100px' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '900', color }}>{value}</div>
+                <div style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: '600', marginTop: '1px' }}>{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', color: '#aaa', padding: '4rem' }}>Loading events...</div>
-        ) : events.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: '5rem',
-            background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0',
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎭</div>
-            <div style={{ fontWeight: '700', color: '#111', marginBottom: '0.3rem' }}>No events yet</div>
-            <div style={{ fontSize: '0.85rem', color: '#aaa' }}>Add some from the Admin panel</div>
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.25rem',
-          }}>
-            {events.map((event, i) => {
-              const t = getTheme(event.category);
-              return (
-                <div
-                  key={event.id}
-                  style={{
-                    background: '#fff',
-                    borderRadius: '18px',
-                    overflow: 'hidden',
-                    border: '1px solid #f0f0f0',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-                  }}
-                >
-                  {/* Rainbow top bar */}
-                  <div style={{ height: '7px', background: t.grad }} />
-
-                  <div style={{ padding: '1.25rem' }}>
-                    <div style={{ fontSize: '2.2rem', marginBottom: '0.85rem' }}>{t.emoji}</div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                      <span style={{
-                        background: t.light, color: t.color,
-                        padding: '0.18rem 0.6rem', borderRadius: '999px',
-                        fontSize: '0.72rem', fontWeight: '700',
-                      }}>
-                        {event.category || 'Event'}
-                      </span>
-                      <span style={{ fontWeight: '800', color: '#111', fontSize: '1.05rem' }}>
-                        ${event.price}
-                      </span>
-                    </div>
-
-                    <h3 style={{
-                      fontSize: '1rem', fontWeight: '800', color: '#111',
-                      marginBottom: '0.75rem', lineHeight: 1.3,
-                    }}>
-                      {event.title}
-                    </h3>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginBottom: '1.1rem' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#888' }}>📍 {event.venue}</span>
-                      <span style={{ fontSize: '0.8rem', color: '#888' }}>🪑 {event.availableSeats} seats</span>
-                      <span style={{ fontSize: '0.8rem', color: '#888' }}>
-                        📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-
-                    <div style={{ height: '2px', borderRadius: '999px', background: t.grad, marginBottom: '1rem' }} />
-
-                    {/* Book Now button — shows lock if not logged in */}
-                    <button
-                      onClick={() => handleBook(event.id)}
-                      style={{
-                        width: '100%', padding: '0.68rem',
-                        background: t.light, color: t.color,
-                        border: 'none', borderRadius: '10px',
-                        fontWeight: '700', fontSize: '0.88rem',
-                        cursor: 'pointer', transition: 'opacity 0.15s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                    >
-                      {user ? 'Book Now →' : '🔒 Sign In to Book'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '0' }}>
+          {[{ key: 'events', label: '📋 Events' }, { key: 'add', label: '＋ Add Event' }].map(({ key, label }) => (
+            <button key={key} onClick={() => setTab(key)} style={{ padding: '0.65rem 1.4rem', border: 'none', background: 'transparent', fontWeight: tab === key ? '800' : '500', fontSize: '0.88rem', color: tab === key ? '#111' : '#aaa', cursor: 'pointer', borderBottom: tab === key ? '2px solid #111' : '2px solid transparent', transition: 'all 0.15s' }}>
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Auth Modal */}
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-    </div>
-  );
-}
+      <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
+        {tab === 'events' && (
+          <>
+            {loading ? (
+              <div style={{ textAlign: 'center', color: '#aaa', padding: '4rem' }}>Loading events...</div>
+            ) : events.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0'
