@@ -159,7 +159,7 @@ export default function AdminPage() {
 
                     <div style={{ padding: '1.2rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                        <div style={{ fontSize: '1.8rem' }}>{EMOJIS[i % EMOJIS.length]}</div>
+                        <div style={{ fontSize: '1.8rem' }}>{CATEGORY_THEMES[event.category?.toLowerCase()]?.emoji || CATEGORY_THEMES['default'].emoji}</div>
                         <button
                           onClick={() => handleDelete(event.id)}
                           style={{ background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}
