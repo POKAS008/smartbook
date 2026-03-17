@@ -13,6 +13,18 @@ const THEMES = [
   { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
   { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
   { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', light: '#eff6ff', color: '#3b82f6', emoji: '🎤' },
+  { grad: 'linear-gradient(90deg,#818cf8,#c084fc)', light: '#eef2ff', color: '#4f46e5', emoji: '🎓' },
+  { grad: 'linear-gradient(90deg,#34d399,#059669)', light: '#ecfdf5', color: '#059669', emoji: '🌿' },
+  { grad: 'linear-gradient(90deg,#f472b6,#ec4899)', light: '#fdf2f8', color: '#db2777', emoji: '💃' },
+  { grad: 'linear-gradient(90deg,#fbbf24,#f59e0b)', light: '#fffbeb', color: '#d97706', emoji: '🏆' },
+  { grad: 'linear-gradient(90deg,#38bdf8,#0284c7)', light: '#f0f9ff', color: '#0284c7', emoji: '🏊' },
+  { grad: 'linear-gradient(90deg,#fb7185,#e11d48)', light: '#fff1f2', color: '#e11d48', emoji: '❤️' },
+  { grad: 'linear-gradient(90deg,#a3e635,#65a30d)', light: '#f7fee7', color: '#65a30d', emoji: '🎾' },
+  { grad: 'linear-gradient(90deg,#c084fc,#7c3aed)', light: '#faf5ff', color: '#7c3aed', emoji: '🔮' },
+  { grad: 'linear-gradient(90deg,#fdba74,#ea580c)', light: '#fff7ed', color: '#ea580c', emoji: '🎪' },
+  { grad: 'linear-gradient(90deg,#67e8f9,#0891b2)', light: '#ecfeff', color: '#0891b2', emoji: '🌊' },
+  { grad: 'linear-gradient(90deg,#86efac,#15803d)', light: '#f0fdf4', color: '#15803d', emoji: '⛳' },
+  { grad: 'linear-gradient(90deg,#fca5a5,#b91c1c)', light: '#fef2f2', color: '#b91c1c', emoji: '🥊' },
 ];
 
 export default function EventsPage() {
