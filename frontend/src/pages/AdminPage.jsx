@@ -7,7 +7,7 @@ const FIELDS = [
   { key: 'eventDate',     label: 'Date',          type: 'datetime-local' },
   { key: 'price',         label: 'Price ($)',     type: 'number'         },
   { key: 'totalSeats',    label: 'Total Seats',   type: 'number'         },
-  { key: 'category',      label: 'Category',      type: 'text'           },
+  { key: 'category',      label: 'Category',      type: 'select'         }, // Changed to select
 ];
 
 const CATEGORY_THEMES = {
@@ -72,16 +72,18 @@ export default function AdminPage() {
   const handleAdd = async () => {
     setSaving(true);
     try {
+      const total = parseInt(form.totalSeats);
       await api.post('/events', {
         ...form,
-        price:      parseFloat(form.price),
-        totalSeats: parseInt(form.totalSeats),
+        price: parseFloat(form.price),
+        totalSeats: total,
+        availableSeats: total, // Properly initializing for your Java backend
       });
       setForm(empty);
       setSuccess(true);
       fetchEvents();
       setTimeout(() => { setSuccess(false); setTab('events'); }, 1500);
-    } catch {
+    } catch (err) {
       alert('Failed to add event.');
     }
     setSaving(false);
@@ -95,6 +97,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8' }}>
+      {/* Header Section */}
       <div style={{ background: '#fff', borderBottom: '1px solid #f0f0f0', padding: '2.5rem 2rem 0', maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <div>
@@ -127,62 +130,80 @@ export default function AdminPage() {
 
       <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
         {tab === 'events' && (
-          <>
-            {loading ? (
-              <div style={{ textAlign: 'center', color: '#aaa', padding: '4rem' }}>Loading events...</div>
-            ) : events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎭</div>
-                <div style={{ fontWeight: '700', color: '#111', marginBottom: '0.3rem' }}>No events yet</div>
-                <button onClick={() => setTab('add')} style={{ marginTop: '1rem', padding: '0.6rem 1.4rem', background: '#111', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '0.88rem' }}>Add First Event →</button>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '1.1rem' }}>
-                {events.map((event) => {
-                  const theme = CATEGORY_THEMES[event.category?.toLowerCase()] || CATEGORY_THEMES['default'];
-                  return (
-                    <div key={event.id} style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'transform 0.18s, box-shadow 0.18s' }}>
-                      <div style={{ height: '6px', background: theme.grad }} />
-                      <div style={{ padding: '1.2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                          <div style={{ fontSize: '1.8rem' }}>{theme.emoji}</div>
-                          <button onClick={() => handleDelete(event.id)} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Delete</button>
-                        </div>
-                        <h3 style={{ fontSize: '1rem', fontWeight: '800', color: '#111', marginBottom: '0.5rem' }}>{event.title}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.28rem', marginBottom: '0.9rem' }}>
-                          <span style={{ fontSize: '0.78rem', color: '#888' }}>📍 {event.venue}</span>
-                          <span style={{ fontSize: '0.78rem', color: '#888' }}>📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                          <span style={{ fontSize: '0.78rem', color: '#888' }}>🪑 {event.availableSeats} / {event.totalSeats} seats</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #f5f5f5' }}>
-                          <span style={{ fontSize: '1.1rem', fontWeight: '900', color: '#111' }}>${event.price}</span>
-                          <span style={{ background: '#f3f4f6', color: '#555', padding: '0.18rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700' }}>{event.category || 'Event'}</span>
-                        </div>
-                      </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '1.1rem' }}>
+            {events.map((event) => {
+              const theme = CATEGORY_THEMES[event.category?.toLowerCase()] || CATEGORY_THEMES['default'];
+              // This is the CRITICAL fix for the seat display
+              const available = (event.availableSeats === null || event.availableSeats === undefined) 
+                                ? event.totalSeats 
+                                : event.availableSeats;
+              
+              return (
+                <div key={event.id} style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div style={{ height: '6px', background: theme.grad }} />
+                  <div style={{ padding: '1.2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                      <div style={{ fontSize: '1.8rem' }}>{theme.emoji}</div>
+                      <button onClick={() => handleDelete(event.id)} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Delete</button>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '800', color: '#111', marginBottom: '0.5rem' }}>{event.title}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.28rem', marginBottom: '0.9rem' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#888' }}>📍 {event.venue}</span>
+                      <span style={{ fontSize: '0.78rem', color: '#888' }}>📅 {new Date(event.eventDate).toLocaleDateString()}</span>
+                      <span style={{ fontSize: '0.78rem', color: '#888' }}>🪑 {available} / {event.totalSeats} seats</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #f5f5f5' }}>
+                      <span style={{ fontSize: '1.1rem', fontWeight: '900', color: '#111' }}>${event.price}</span>
+                      <span style={{ background: '#f3f4f6', color: '#555', padding: '0.18rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700' }}>{event.category || 'Event'}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
 
         {tab === 'add' && (
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-            <div style={{ background: '#fff', borderRadius: '20px', overflow: 'hidden', border: '1px solid #f0f0f0', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
               <div style={{ height: '5px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)' }} />
               <div style={{ padding: '2rem' }}>
                 <h2 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#111', marginBottom: '1.5rem' }}>Add New Event</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {FIELDS.map(({ key, label, type }) => (
                     <div key={key}>
-                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#aaa', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>{label.toUpperCase()}</label>
-                      <input type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid #f0f0f0', borderRadius: '10px', fontSize: '0.9rem', color: '#111', background: '#fafafa', outline: 'none', transition: 'border 0.15s', boxSizing: 'border-box' }} />
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#aaa', marginBottom: '0.4rem' }}>{label.toUpperCase()}</label>
+                      
+                      {key === 'category' ? (
+                        <select
+                          value={form[key]}
+                          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                          style={{ width: '100%', padding: '0.7rem', border: '1.5px solid #f0f0f0', borderRadius: '10px', background: '#fafafa' }}
+                        >
+                          <option value="">Select Category</option>
+                          {Object.keys(CATEGORY_THEMES).filter(k => k !== 'default').map(cat => (
+                            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input 
+                          type={type} 
+                          value={form[key]} 
+                          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} 
+                          style={{ width: '100%', padding: '0.7rem', border: '1.5px solid #f0f0f0', borderRadius: '10px', background: '#fafafa' }} 
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
-                <div style={{ height: '3px', borderRadius: '999px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)', margin: '1.5rem 0' }} />
-                {success ? <div style={{ textAlign: 'center', padding: '1rem', background: '#f0fdf4', borderRadius: '12px', color: '#16a34a', fontWeight: '700', fontSize: '0.95rem' }}>✅ Event added successfully!</div> : <button onClick={handleAdd} disabled={saving} style={{ width: '100%', padding: '0.85rem', background: saving ? '#e5e7eb' : '#111', color: saving ? '#aaa' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '0.95rem', cursor: saving ? 'not-allowed' : 'pointer' }}>{saving ? 'Adding...' : 'Add Event →'}</button>}
+                <div style={{ height: '3px', background: '#f0f0f0', margin: '1.5rem 0' }} />
+                {success ? (
+                  <div style={{ textAlign: 'center', color: '#16a34a', fontWeight: '700' }}>✅ Event added successfully!</div>
+                ) : (
+                  <button onClick={handleAdd} disabled={saving} style={{ width: '100%', padding: '0.85rem', background: '#111', color: '#fff', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>
+                    {saving ? 'Adding...' : 'Add Event →'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
