@@ -1,5 +1,6 @@
 package com.saranya.smartbook.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,10 +15,12 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"bookings", "password", "roles"})  // ✅ ADD THIS
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
+    @JsonIgnoreProperties({"bookings"})  // ✅ ADD THIS
     private Event event;
 
     private Integer seatsBooked;
