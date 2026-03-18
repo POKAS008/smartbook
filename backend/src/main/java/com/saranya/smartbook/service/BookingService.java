@@ -53,7 +53,28 @@ public class BookingService {
         return bookingRepo.save(booking);
     }
 
-    // ✅ ADDED
+    // ✅ Cancel booking
+    @Transactional
+    public Booking cancelBooking(Long bookingId, Long userId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getUser().getId().equals(userId))
+            throw new RuntimeException("Unauthorized");
+
+        if (booking.getStatus().equals("CANCELLED"))
+            throw new RuntimeException("Booking already cancelled");
+
+        // ✅ Restore seats back to event
+        Event event = booking.getEvent();
+        event.setAvailableSeats(event.getAvailableSeats() + booking.getSeatsBooked());
+        eventRepo.save(event);
+
+        // ✅ Mark as cancelled
+        booking.setStatus("CANCELLED");
+        return bookingRepo.save(booking);
+    }
+
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
