@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
+import { QRCodeSVG } from 'qrcode.react';
 import api from '../api/axios';
 
 const getEmoji = (category) => {
@@ -25,6 +26,7 @@ export default function BookingPage() {
   const [loading,    setLoading]    = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [success,    setSuccess]    = useState(false);
+  const [bookingId,  setBookingId]  = useState(null);
   const [showAuth,   setShowAuth]   = useState(false);
 
   useEffect(() => {
@@ -38,11 +40,12 @@ export default function BookingPage() {
     if (!user) { setShowAuth(true); return; }
     setConfirming(true);
     try {
-      await api.post('/bookings', {
+      const res = await api.post('/bookings', {
         eventId:       parseInt(id),
         userId:        user.id,
         numberOfSeats: seats,
       });
+      setBookingId(res.data.id);  // ✅ save booking ID for QR
       setSuccess(true);
     } catch (e) {
       alert(e.response?.data?.message || 'Booking failed. Please try again.');
@@ -67,16 +70,12 @@ export default function BookingPage() {
         <p style={{ color: '#aaa', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
           You need to be logged in to book events
         </p>
-        <button
-          onClick={() => setShowAuth(true)}
-          style={{ width: '100%', padding: '0.82rem', border: 'none', background: '#111', color: '#fff', borderRadius: '12px', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}
-        >
+        <button onClick={() => setShowAuth(true)}
+          style={{ width: '100%', padding: '0.82rem', border: 'none', background: '#111', color: '#fff', borderRadius: '12px', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}>
           Sign In to Continue →
         </button>
-        <button
-          onClick={() => navigate('/')}
-          style={{ width: '100%', padding: '0.65rem', background: 'transparent', color: '#aaa', border: 'none', fontSize: '0.82rem', cursor: 'pointer', marginTop: '0.5rem', fontFamily: 'inherit' }}
-        >
+        <button onClick={() => navigate('/')}
+          style={{ width: '100%', padding: '0.65rem', background: 'transparent', color: '#aaa', border: 'none', fontSize: '0.82rem', cursor: 'pointer', marginTop: '0.5rem', fontFamily: 'inherit' }}>
           ← Back to Events
         </button>
       </div>
@@ -90,33 +89,87 @@ export default function BookingPage() {
     </div>
   );
 
-  if (success) return (
-    <div style={{ minHeight: '100vh', background: '#f8f8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div style={{ background: '#fff', borderRadius: '24px', padding: '3rem 2.5rem', textAlign: 'center', border: '1px solid #f0f0f0', maxWidth: '400px', width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}>
-        <div style={{ height: '5px', borderRadius: '999px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)', marginBottom: '2rem' }} />
-        <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🎉</div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#111', marginBottom: '0.5rem' }}>Booking Confirmed!</h2>
-        <p style={{ color: '#888', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
-          {seats} seat{seats > 1 ? 's' : ''} booked for <strong style={{ color: '#111' }}>{event.title}</strong>
-        </p>
-        <div style={{ background: '#f8f8f8', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: '900', color: '#111' }}>
-          ${(event.price * seats).toFixed(2)}
+  if (success) {
+    // ✅ QR code data
+    const qrData = JSON.stringify({
+      bookingId: bookingId,
+      event:     event.title,
+      venue:     event.venue,
+      seats:     seats,
+      total:     `$${(event.price * seats).toFixed(2)}`,
+      bookedBy:  user.name || user.email,
+      date:      new Date(event.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    });
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8f8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ background: '#fff', borderRadius: '24px', padding: '2.5rem 2rem', textAlign: 'center', border: '1px solid #f0f0f0', maxWidth: '420px', width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}>
+          <div style={{ height: '5px', borderRadius: '999px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)', marginBottom: '1.5rem' }} />
+          
+          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎉</div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#111', marginBottom: '0.3rem' }}>Booking Confirmed!</h2>
+          <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+            {seats} seat{seats > 1 ? 's' : ''} booked for <strong style={{ color: '#111' }}>{event.title}</strong>
+          </p>
+
+          {/* Booking details */}
+          <div style={{ background: '#f8f8f8', borderRadius: '12px', padding: '0.9rem 1rem', marginBottom: '1.25rem', textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#aaa' }}>Event</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#111' }}>{event.title}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#aaa' }}>Venue</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#111' }}>{event.venue}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#aaa' }}>Date</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#111' }}>
+                {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#aaa' }}>Seats</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#111' }}>{seats}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e5e7eb', paddingTop: '0.4rem', marginTop: '0.4rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#aaa' }}>TOTAL</span>
+              <span style={{ fontSize: '1rem', fontWeight: '900', color: '#111' }}>${(event.price * seats).toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* ✅ QR Code */}
+          <div style={{ background: '#f8f8f8', borderRadius: '16px', padding: '1.25rem', marginBottom: '1.25rem', display: 'inline-block' }}>
+            <div style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: '700', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>YOUR TICKET QR CODE</div>
+            <QRCodeSVG
+              value={qrData}
+              size={160}
+              bgColor="#f8f8f8"
+              fgColor="#111111"
+              level="M"
+              style={{ borderRadius: '8px' }}
+            />
+            <div style={{ fontSize: '0.68rem', color: '#aaa', marginTop: '0.6rem' }}>
+              Booking #{bookingId} · Show at entry
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/my-bookings')}
+            style={{ width: '100%', padding: '0.75rem', background: '#111', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginBottom: '0.6rem' }}
+          >
+            View My Bookings →
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            style={{ width: '100%', padding: '0.65rem', background: 'transparent', color: '#aaa', border: 'none', fontSize: '0.82rem', cursor: 'pointer' }}
+          >
+            Browse More Events
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/my-bookings')}
-          style={{ width: '100%', padding: '0.75rem', background: '#111', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginBottom: '0.6rem' }}
-        >
-          View My Bookings →
-        </button>
-        <button
-          onClick={() => navigate('/')}
-          style={{ width: '100%', padding: '0.65rem', background: 'transparent', color: '#aaa', border: 'none', fontSize: '0.82rem', cursor: 'pointer' }}
-        >
-          Browse More Events
-        </button>
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
@@ -125,7 +178,6 @@ export default function BookingPage() {
         <div style={{ height: '7px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)' }} />
 
         <div style={{ padding: '2rem 2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid #f5f5f5' }}>
-          {/* ✅ Category-based emoji */}
           <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>{getEmoji(event.category)}</div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#111', marginBottom: '0.4rem' }}>{event.title}</h1>
           <div style={{ fontSize: '0.85rem', color: '#888' }}>📍 {event.venue}</div>
@@ -138,7 +190,6 @@ export default function BookingPage() {
         </div>
 
         <div style={{ padding: '1.75rem 2rem' }}>
-
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ flex: 1, background: '#f8f8f8', borderRadius: '12px', padding: '0.9rem 1rem' }}>
               <div style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: '700', marginBottom: '0.25rem' }}>PRICE / SEAT</div>
@@ -186,7 +237,6 @@ export default function BookingPage() {
           >
             ← Back to Events
           </button>
-
         </div>
       </div>
     </div>
