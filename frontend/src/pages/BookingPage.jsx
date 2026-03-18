@@ -4,6 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import api from '../api/axios';
 
+const getEmoji = (category) => {
+  const map = {
+    music: '🎵', concert: '🎤', sports: '⚽', football: '🏈',
+    cricket: '🏏', food: '🍕', festival: '🎪', art: '🎨',
+    culture: '🏛️', tech: '💻', gaming: '🎮', theater: '🎭',
+    comedy: '😂', fashion: '👗', birthday: '🎂', party: '🎉',
+    graduation: '🎓', newyear: '🎆', newyearevent: '🎆',
+  };
+  if (!category) return '🎉';
+  return map[category.toLowerCase().replace(/\s+/g, '')] || '🎉';
+};
+
 export default function BookingPage() {
   const { id }       = useParams();
   const navigate     = useNavigate();
@@ -110,27 +122,23 @@ export default function BookingPage() {
     <div style={{ minHeight: '100vh', background: '#f8f8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ background: '#fff', borderRadius: '24px', overflow: 'hidden', border: '1px solid #f0f0f0', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', width: '100%', maxWidth: '440px' }}>
 
-        {/* Rainbow top */}
         <div style={{ height: '7px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)' }} />
 
-        {/* Header */}
         <div style={{ padding: '2rem 2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid #f5f5f5' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎵</div>
+          {/* ✅ Category-based emoji */}
+          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>{getEmoji(event.category)}</div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#111', marginBottom: '0.4rem' }}>{event.title}</h1>
           <div style={{ fontSize: '0.85rem', color: '#888' }}>📍 {event.venue}</div>
           <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.25rem' }}>
             📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </div>
-          {/* Logged in as */}
           <div style={{ marginTop: '0.75rem', background: '#f8f8f8', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'inline-block', fontSize: '0.75rem', color: '#888' }}>
             👤 Booking as <strong style={{ color: '#111' }}>{user.name || user.email}</strong>
           </div>
         </div>
 
-        {/* Form */}
         <div style={{ padding: '1.75rem 2rem' }}>
 
-          {/* Price / Seats row */}
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ flex: 1, background: '#f8f8f8', borderRadius: '12px', padding: '0.9rem 1rem' }}>
               <div style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: '700', marginBottom: '0.25rem' }}>PRICE / SEAT</div>
@@ -142,7 +150,6 @@ export default function BookingPage() {
             </div>
           </div>
 
-          {/* Seat selector */}
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#aaa', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>NUMBER OF SEATS</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -158,16 +165,13 @@ export default function BookingPage() {
             </div>
           </div>
 
-          {/* Total */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8f8f8', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
             <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#aaa' }}>TOTAL</span>
             <span style={{ fontSize: '1.6rem', fontWeight: '900', color: '#111' }}>${(event.price * seats).toFixed(2)}</span>
           </div>
 
-          {/* Rainbow divider */}
           <div style={{ height: '3px', borderRadius: '999px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)', marginBottom: '1.25rem' }} />
 
-          {/* Confirm */}
           <button
             onClick={handleBook}
             disabled={confirming}

@@ -4,23 +4,41 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import api from '../api/axios';
 
-const THEMES = [
-  { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
-  { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
-  { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
-  { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
-  { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
-  { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
-  { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
-  { grad: 'linear-gradient(90deg,#60a5fa,#4ade80)', light: '#eff6ff', color: '#3b82f6', emoji: '🎤' },
-];
+const CATEGORY_THEMES = {
+  music:      { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
+  concert:    { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎤' },
+  sports:     { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
+  football:   { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '🏈' },
+  cricket:    { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '🏏' },
+  food:       { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
+  festival:   { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🎪' },
+  art:        { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
+  culture:    { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🏛️' },
+  tech:       { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
+  gaming:     { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎮' },
+  theater:    { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
+  comedy:     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '😂' },
+  fashion:    { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
+  birthday:   { grad: 'linear-gradient(90deg,#facc15,#fb923c)', light: '#fff7ed', color: '#f97316', emoji: '🎂' },
+  party:      { grad: 'linear-gradient(90deg,#facc15,#fb923c)', light: '#fff7ed', color: '#f97316', emoji: '🎉' },
+  graduation: { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎓' },
+  newyear:    { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎆' },
+  newyearevent: { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎆' },
+  default:    { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎉' },
+};
+
+const getTheme = (category) => {
+  if (!category) return CATEGORY_THEMES.default;
+  const key = category.toLowerCase().replace(/\s+/g, '');
+  return CATEGORY_THEMES[key] || CATEGORY_THEMES.default;
+};
 
 export default function EventsPage() {
   const [events,   setEvents]   = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [showAuth, setShowAuth] = useState(false);
-  const navigate    = useNavigate();
-  const { user }    = useAuth();
+  const navigate = useNavigate();
+  const { user }  = useAuth();
 
   useEffect(() => {
     api.get('/events').then(res => {
@@ -30,10 +48,7 @@ export default function EventsPage() {
   }, []);
 
   const handleBook = (eventId) => {
-    if (!user) {
-      setShowAuth(true);
-      return;
-    }
+    if (!user) { setShowAuth(true); return; }
     navigate(`/book/${eventId}`);
   };
 
@@ -48,23 +63,17 @@ export default function EventsPage() {
         borderBottom: '1px solid #f0f0f0',
       }}>
         <h1 style={{
-          fontSize: '2.0rem',
-          fontWeight: '900',
-          color: '#111',
-          lineHeight: 1.15,
-          letterSpacing: '-0.03em',
-          marginBottom: '0.75rem',
+          fontSize: '2.0rem', fontWeight: '900', color: '#111',
+          lineHeight: 1.15, letterSpacing: '-0.03em', marginBottom: '0.75rem',
         }}>
           Book Your Next<br />
           <span style={{
             background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>
             Unforgettable Experience
           </span>
         </h1>
-
         <p style={{ color: '#888', fontSize: '1rem', maxWidth: '420px', margin: '0 auto' }}>
           Discover and book the best events happening near you
         </p>
@@ -91,7 +100,7 @@ export default function EventsPage() {
             textAlign: 'center', padding: '5rem',
             background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0',
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎭</div>
+            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎉</div>
             <div style={{ fontWeight: '700', color: '#111', marginBottom: '0.3rem' }}>No events yet</div>
             <div style={{ fontSize: '0.85rem', color: '#aaa' }}>Add some from the Admin panel</div>
           </div>
@@ -101,19 +110,15 @@ export default function EventsPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: '1.25rem',
           }}>
-            {events.map((event, i) => {
-              const t = THEMES[i % THEMES.length];
+            {events.map((event) => {
+              const t = getTheme(event.category);
               return (
                 <div
                   key={event.id}
                   style={{
-                    background: '#fff',
-                    borderRadius: '18px',
-                    overflow: 'hidden',
-                    border: '1px solid #f0f0f0',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    cursor: 'pointer',
+                    background: '#fff', borderRadius: '18px', overflow: 'hidden',
+                    border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -124,7 +129,6 @@ export default function EventsPage() {
                     e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
                   }}
                 >
-                  {/* Rainbow top bar */}
                   <div style={{ height: '7px', background: t.grad }} />
 
                   <div style={{ padding: '1.25rem' }}>
@@ -160,7 +164,6 @@ export default function EventsPage() {
 
                     <div style={{ height: '2px', borderRadius: '999px', background: t.grad, marginBottom: '1rem' }} />
 
-                    {/* Book Now button — shows lock if not logged in */}
                     <button
                       onClick={() => handleBook(event.id)}
                       style={{
@@ -183,7 +186,6 @@ export default function EventsPage() {
         )}
       </div>
 
-      {/* Auth Modal */}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   );
