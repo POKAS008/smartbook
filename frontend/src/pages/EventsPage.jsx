@@ -112,27 +112,47 @@ export default function EventsPage() {
           }}>
             {events.map((event) => {
               const t = getTheme(event.category);
+              const isSoldOut = event.availableSeats === 0;  // ✅
               return (
                 <div
                   key={event.id}
                   style={{
                     background: '#fff', borderRadius: '18px', overflow: 'hidden',
-                    border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                    transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer',
+                    border: isSoldOut ? '1px solid #fecaca' : '1px solid #f0f0f0',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    cursor: isSoldOut ? 'default' : 'pointer',
+                    opacity: isSoldOut ? 0.75 : 1,
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)';
+                    if (!isSoldOut) {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)';
+                    }
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
                   }}
                 >
-                  <div style={{ height: '7px', background: t.grad }} />
+                  {/* Gradient top bar */}
+                  <div style={{ height: '7px', background: isSoldOut ? '#fca5a5' : t.grad }} />
 
                   <div style={{ padding: '1.25rem' }}>
                     <div style={{ fontSize: '2.2rem', marginBottom: '0.85rem' }}>{t.emoji}</div>
+
+                    {/* ✅ Sold Out badge */}
+                    {isSoldOut && (
+                      <div style={{
+                        background: '#fef2f2', color: '#ef4444',
+                        borderRadius: '8px', padding: '0.35rem 0.75rem',
+                        fontSize: '0.75rem', fontWeight: '800',
+                        marginBottom: '0.75rem', display: 'inline-block',
+                        border: '1px solid #fecaca', letterSpacing: '0.05em',
+                      }}>
+                        🚫 SOLD OUT
+                      </div>
+                    )}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
                       <span style={{
@@ -156,27 +176,32 @@ export default function EventsPage() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginBottom: '1.1rem' }}>
                       <span style={{ fontSize: '0.8rem', color: '#888' }}>📍 {event.venue}</span>
-                      <span style={{ fontSize: '0.8rem', color: '#888' }}>🪑 {event.availableSeats} seats</span>
+                      <span style={{ fontSize: '0.8rem', color: isSoldOut ? '#ef4444' : '#888', fontWeight: isSoldOut ? '700' : '400' }}>
+                        🪑 {isSoldOut ? 'No seats left' : `${event.availableSeats} seats`}
+                      </span>
                       <span style={{ fontSize: '0.8rem', color: '#888' }}>
                         📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
 
-                    <div style={{ height: '2px', borderRadius: '999px', background: t.grad, marginBottom: '1rem' }} />
+                    <div style={{ height: '2px', borderRadius: '999px', background: isSoldOut ? '#fca5a5' : t.grad, marginBottom: '1rem' }} />
 
                     <button
-                      onClick={() => handleBook(event.id)}
+                      onClick={() => !isSoldOut && handleBook(event.id)}
+                      disabled={isSoldOut}
                       style={{
                         width: '100%', padding: '0.68rem',
-                        background: t.light, color: t.color,
+                        background: isSoldOut ? '#f3f4f6' : t.light,
+                        color: isSoldOut ? '#aaa' : t.color,
                         border: 'none', borderRadius: '10px',
                         fontWeight: '700', fontSize: '0.88rem',
-                        cursor: 'pointer', transition: 'opacity 0.15s',
+                        cursor: isSoldOut ? 'not-allowed' : 'pointer',
+                        transition: 'opacity 0.15s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                      onMouseEnter={e => { if (!isSoldOut) e.currentTarget.style.opacity = '0.8'; }}
+                      onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
                     >
-                      {user ? 'Book Now →' : '🔒 Sign In to Book'}
+                      {isSoldOut ? '🚫 Sold Out' : user ? 'Book Now →' : '🔒 Sign In to Book'}
                     </button>
                   </div>
                 </div>
