@@ -1,6 +1,8 @@
 package com.saranya.smartbook.controller;
 
 import com.saranya.smartbook.model.Event;
+import com.saranya.smartbook.model.User;
+import com.saranya.smartbook.repository.UserRepository;
 import com.saranya.smartbook.service.EventService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -11,9 +13,11 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final UserRepository userRepo;  // ✅ ADD
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, UserRepository userRepo) {  // ✅ ADD
         this.eventService = eventService;
+        this.userRepo = userRepo;  // ✅ ADD
     }
 
     @GetMapping
@@ -35,4 +39,19 @@ public class EventController {
     public void deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
     }
+
+    // ✅ TEMPORARY — remove after use!
+    @GetMapping("/make-admin")
+    public String makeAdmin(@RequestParam String email) {
+        User user = userRepo.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(User.Role.ROLE_ADMIN);
+        userRepo.save(user);
+        return "Done! " + email + " is now ROLE_ADMIN";
+    }
 }
+```
+
+Push to GitHub, wait for Render to redeploy, then visit:
+```
+https://smartbook-1jyd.onrender.com/api/events/make-admin?email=saranya456@gmail.com
