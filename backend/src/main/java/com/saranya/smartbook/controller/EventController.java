@@ -13,11 +13,11 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
-    private final UserRepository userRepo;  // ✅ ADD
+    private final UserRepository userRepo;
 
-    public EventController(EventService eventService, UserRepository userRepo) {  // ✅ ADD
+    public EventController(EventService eventService, UserRepository userRepo) {
         this.eventService = eventService;
-        this.userRepo = userRepo;  // ✅ ADD
+        this.userRepo = userRepo;
     }
 
     @GetMapping
@@ -50,8 +50,3 @@ public class EventController {
         return "Done! " + email + " is now ROLE_ADMIN";
     }
 }
-```
-
-Push to GitHub, wait for Render to redeploy, then visit:
-```
-https://smartbook-1jyd.onrender.com/api/events/make-admin?email=saranya456@gmail.com
