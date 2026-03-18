@@ -21,12 +21,19 @@ public class BookingController {
     public Booking createBooking(@RequestBody Map<String, Object> request) {
         Long eventId = Long.valueOf(request.get("eventId").toString());
         Long userId  = Long.valueOf(request.get("userId").toString());
-        // Accept both "seats" and "numberOfSeats" from frontend
         int seats = Integer.parseInt(
             request.getOrDefault("numberOfSeats",
             request.getOrDefault("seats", "1")).toString()
         );
         return bookingService.createBooking(eventId, userId, seats);
+    }
+
+    // ✅ Cancel booking
+    @DeleteMapping("/{bookingId}/cancel")
+    public Booking cancelBooking(
+            @PathVariable Long bookingId,
+            @RequestParam Long userId) {
+        return bookingService.cancelBooking(bookingId, userId);
     }
 
     @GetMapping

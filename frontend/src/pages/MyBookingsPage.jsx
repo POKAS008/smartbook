@@ -58,7 +58,7 @@ export default function MyBookingsPage() {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     setCancelling(bookingId);
     try {
-      await api.put(`/bookings/${bookingId}/cancel`, { userId: user.id });
+      await api.delete(`/bookings/${bookingId}/cancel?userId=${user.id}`);
       fetchBookings(); // ✅ refresh list
     } catch (e) {
       alert(e.response?.data?.message || 'Failed to cancel booking.');
