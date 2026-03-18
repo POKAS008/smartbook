@@ -2,24 +2,42 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 
 const FIELDS = [
-  { key: 'title',         label: 'Event Title',  type: 'text'          },
-  { key: 'venue',         label: 'Venue',         type: 'text'          },
-  { key: 'eventDate',     label: 'Date',          type: 'datetime-local' },
-  { key: 'price',         label: 'Price ($)',     type: 'number'        },
-  { key: 'totalSeats',    label: 'Total Seats',   type: 'number'        },
-  { key: 'category',      label: 'Category',      type: 'text'          },
+  { key: 'title',      label: 'Event Title', type: 'text'          },
+  { key: 'venue',      label: 'Venue',        type: 'text'          },
+  { key: 'eventDate',  label: 'Date',         type: 'datetime-local' },
+  { key: 'price',      label: 'Price ($)',    type: 'number'        },
+  { key: 'totalSeats', label: 'Total Seats',  type: 'number'        },
+  { key: 'category',   label: 'Category',     type: 'text'          },
 ];
 
-const GRADS = [
-  'linear-gradient(90deg,#f87171,#fb923c)',
-  'linear-gradient(90deg,#fb923c,#facc15)',
-  'linear-gradient(90deg,#facc15,#4ade80)',
-  'linear-gradient(90deg,#4ade80,#60a5fa)',
-  'linear-gradient(90deg,#60a5fa,#a78bfa)',
-  'linear-gradient(90deg,#a78bfa,#f87171)',
-];
+const CATEGORY_THEMES = {
+  music:      { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎵' },
+  concert:    { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '🎤' },
+  sports:     { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '⚽' },
+  football:   { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '🏈' },
+  cricket:    { grad: 'linear-gradient(90deg,#fb923c,#facc15)', light: '#fff7ed', color: '#f97316', emoji: '🏏' },
+  food:       { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🍕' },
+  festival:   { grad: 'linear-gradient(90deg,#facc15,#4ade80)', light: '#fefce8', color: '#ca8a04', emoji: '🎪' },
+  art:        { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎨' },
+  culture:    { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🏛️' },
+  tech:       { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '💻' },
+  gaming:     { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎮' },
+  theater:    { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎭' },
+  comedy:     { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '😂' },
+  fashion:    { grad: 'linear-gradient(90deg,#f87171,#fb923c)', light: '#fef2f2', color: '#ef4444', emoji: '👗' },
+  birthday:   { grad: 'linear-gradient(90deg,#facc15,#fb923c)', light: '#fff7ed', color: '#f97316', emoji: '🎂' },
+  party:      { grad: 'linear-gradient(90deg,#facc15,#fb923c)', light: '#fff7ed', color: '#f97316', emoji: '🎉' },
+  graduation: { grad: 'linear-gradient(90deg,#4ade80,#60a5fa)', light: '#f0fdf4', color: '#16a34a', emoji: '🎓' },
+  newyear:    { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎆' },
+  newyearevent: { grad: 'linear-gradient(90deg,#60a5fa,#a78bfa)', light: '#eff6ff', color: '#3b82f6', emoji: '🎆' },
+  default:    { grad: 'linear-gradient(90deg,#a78bfa,#f87171)', light: '#faf5ff', color: '#8b5cf6', emoji: '🎉' },
+};
 
-const EMOJIS = ['🎵','⚽','🍕','🎨','💻','🎭','👗','🎤'];
+const getTheme = (category) => {
+  if (!category) return CATEGORY_THEMES.default;
+  const key = category.toLowerCase().replace(/\s+/g, '');
+  return CATEGORY_THEMES[key] || CATEGORY_THEMES.default;
+};
 
 const empty = { title: '', venue: '', eventDate: '', price: '', totalSeats: '', category: '' };
 
@@ -29,7 +47,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
   const [success, setSuccess] = useState(false);
-  const [tab,     setTab]     = useState('events'); // 'events' | 'add'
+  const [tab,     setTab]     = useState('events');
 
   const fetchEvents = () => {
     api.get('/events').then(res => {
@@ -69,11 +87,8 @@ export default function AdminPage() {
 
       {/* Header */}
       <div style={{
-        background: '#fff',
-        borderBottom: '1px solid #f0f0f0',
-        padding: '2.5rem 2rem 0',
-        maxWidth: '1100px',
-        margin: '0 auto',
+        background: '#fff', borderBottom: '1px solid #f0f0f0',
+        padding: '2.5rem 2rem 0', maxWidth: '1100px', margin: '0 auto',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <div>
@@ -81,12 +96,10 @@ export default function AdminPage() {
             <h1 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#111', letterSpacing: '-0.02em' }}>Admin Panel</h1>
             <p style={{ color: '#aaa', fontSize: '0.85rem', marginTop: '0.2rem' }}>Manage your events</p>
           </div>
-
-          {/* Stats */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             {[
-              { label: 'Total Events', value: events.length,                                        color: '#0ea5e9', bg: '#e0f2fe' },
-              { label: 'Total Seats',  value: events.reduce((a, e) => a + (e.totalSeats || 0), 0),  color: '#7c3aed', bg: '#ede9fe' },
+              { label: 'Total Events', value: events.length,                                       color: '#0ea5e9', bg: '#e0f2fe' },
+              { label: 'Total Seats',  value: events.reduce((a, e) => a + (e.totalSeats || 0), 0), color: '#7c3aed', bg: '#ede9fe' },
             ].map(({ label, value, color, bg }) => (
               <div key={label} style={{ background: bg, borderRadius: '14px', padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '100px' }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color }}>{value}</div>
@@ -106,13 +119,9 @@ export default function AdminPage() {
               key={key}
               onClick={() => setTab(key)}
               style={{
-                padding: '0.65rem 1.4rem',
-                border: 'none',
-                background: 'transparent',
-                fontWeight: tab === key ? '800' : '500',
-                fontSize: '0.88rem',
-                color: tab === key ? '#111' : '#aaa',
-                cursor: 'pointer',
+                padding: '0.65rem 1.4rem', border: 'none', background: 'transparent',
+                fontWeight: tab === key ? '800' : '500', fontSize: '0.88rem',
+                color: tab === key ? '#111' : '#aaa', cursor: 'pointer',
                 borderBottom: tab === key ? '2px solid #111' : '2px solid transparent',
                 transition: 'all 0.15s',
               }}
@@ -132,7 +141,7 @@ export default function AdminPage() {
               <div style={{ textAlign: 'center', color: '#aaa', padding: '4rem' }}>Loading events...</div>
             ) : events.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '20px', border: '1px solid #f0f0f0' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎭</div>
+                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎉</div>
                 <div style={{ fontWeight: '700', color: '#111', marginBottom: '0.3rem' }}>No events yet</div>
                 <button onClick={() => setTab('add')} style={{ marginTop: '1rem', padding: '0.6rem 1.4rem', background: '#111', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '0.88rem' }}>
                   Add First Event →
@@ -140,51 +149,53 @@ export default function AdminPage() {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: '1.1rem' }}>
-                {events.map((event, i) => (
-                  <div
-                    key={event.id}
-                    style={{
-                      background: '#fff',
-                      borderRadius: '16px',
-                      overflow: 'hidden',
-                      border: '1px solid #f0f0f0',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                      transition: 'transform 0.18s, box-shadow 0.18s',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.09)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; }}
-                  >
-                    {/* Rainbow bar */}
-                    <div style={{ height: '6px', background: GRADS[i % GRADS.length] }} />
+                {events.map((event) => {
+                  const t = getTheme(event.category); // ✅ category-based
+                  return (
+                    <div
+                      key={event.id}
+                      style={{
+                        background: '#fff', borderRadius: '16px', overflow: 'hidden',
+                        border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        transition: 'transform 0.18s, box-shadow 0.18s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.09)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; }}
+                    >
+                      {/* ✅ Category-based gradient bar */}
+                      <div style={{ height: '6px', background: t.grad }} />
 
-                    <div style={{ padding: '1.2rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                        <div style={{ fontSize: '1.8rem' }}>{EMOJIS[i % EMOJIS.length]}</div>
-                        <button
-                          onClick={() => handleDelete(event.id)}
-                          style={{ background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      <div style={{ padding: '1.2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                          {/* ✅ Category-based emoji */}
+                          <div style={{ fontSize: '1.8rem' }}>{t.emoji}</div>
+                          <button
+                            onClick={() => handleDelete(event.id)}
+                            style={{ background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
 
-                      <h3 style={{ fontSize: '1rem', fontWeight: '800', color: '#111', marginBottom: '0.5rem' }}>{event.title}</h3>
+                        <h3 style={{ fontSize: '1rem', fontWeight: '800', color: '#111', marginBottom: '0.5rem' }}>{event.title}</h3>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.28rem', marginBottom: '0.9rem' }}>
-                        <span style={{ fontSize: '0.78rem', color: '#888' }}>📍 {event.venue}</span>
-                        <span style={{ fontSize: '0.78rem', color: '#888' }}>📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        <span style={{ fontSize: '0.78rem', color: '#888' }}>🪑 {event.availableSeats} / {event.totalSeats} seats</span>
-                      </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.28rem', marginBottom: '0.9rem' }}>
+                          <span style={{ fontSize: '0.78rem', color: '#888' }}>📍 {event.venue}</span>
+                          <span style={{ fontSize: '0.78rem', color: '#888' }}>📅 {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          <span style={{ fontSize: '0.78rem', color: '#888' }}>🪑 {event.availableSeats} / {event.totalSeats} seats</span>
+                        </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #f5f5f5' }}>
-                        <span style={{ fontSize: '1.1rem', fontWeight: '900', color: '#111' }}>${event.price}</span>
-                        <span style={{ background: '#f3f4f6', color: '#555', padding: '0.18rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700' }}>
-                          {event.category || 'Event'}
-                        </span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #f5f5f5' }}>
+                          <span style={{ fontSize: '1.1rem', fontWeight: '900', color: '#111' }}>${event.price}</span>
+                          {/* ✅ Category badge with matching color */}
+                          <span style={{ background: t.light, color: t.color, padding: '0.18rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700' }}>
+                            {event.category || 'Event'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
@@ -194,11 +205,8 @@ export default function AdminPage() {
         {tab === 'add' && (
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
             <div style={{
-              background: '#fff',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              border: '1px solid #f0f0f0',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              background: '#fff', borderRadius: '20px', overflow: 'hidden',
+              border: '1px solid #f0f0f0', boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
             }}>
               <div style={{ height: '5px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)' }} />
 
@@ -216,16 +224,10 @@ export default function AdminPage() {
                         value={form[key]}
                         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                         style={{
-                          width: '100%',
-                          padding: '0.7rem 0.9rem',
-                          border: '1.5px solid #f0f0f0',
-                          borderRadius: '10px',
-                          fontSize: '0.9rem',
-                          color: '#111',
-                          background: '#fafafa',
-                          outline: 'none',
-                          transition: 'border 0.15s',
-                          boxSizing: 'border-box',
+                          width: '100%', padding: '0.7rem 0.9rem',
+                          border: '1.5px solid #f0f0f0', borderRadius: '10px',
+                          fontSize: '0.9rem', color: '#111', background: '#fafafa',
+                          outline: 'none', transition: 'border 0.15s', boxSizing: 'border-box',
                         }}
                         onFocus={e => e.target.style.borderColor = '#0ea5e9'}
                         onBlur={e => e.target.style.borderColor = '#f0f0f0'}
@@ -234,7 +236,6 @@ export default function AdminPage() {
                   ))}
                 </div>
 
-                {/* Rainbow divider */}
                 <div style={{ height: '3px', borderRadius: '999px', background: 'linear-gradient(90deg,#f87171,#fb923c,#facc15,#4ade80,#60a5fa,#a78bfa)', margin: '1.5rem 0' }} />
 
                 {success ? (
@@ -246,16 +247,11 @@ export default function AdminPage() {
                     onClick={handleAdd}
                     disabled={saving}
                     style={{
-                      width: '100%',
-                      padding: '0.85rem',
+                      width: '100%', padding: '0.85rem',
                       background: saving ? '#e5e7eb' : '#111',
                       color: saving ? '#aaa' : '#fff',
-                      border: 'none',
-                      borderRadius: '12px',
-                      fontWeight: '800',
-                      fontSize: '0.95rem',
-                      cursor: saving ? 'not-allowed' : 'pointer',
-                      transition: 'opacity 0.15s',
+                      border: 'none', borderRadius: '12px', fontWeight: '800',
+                      fontSize: '0.95rem', cursor: saving ? 'not-allowed' : 'pointer', transition: 'opacity 0.15s',
                     }}
                     onMouseEnter={e => { if (!saving) e.currentTarget.style.opacity = '0.85'; }}
                     onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
