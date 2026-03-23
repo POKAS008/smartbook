@@ -239,12 +239,12 @@ smartbook/
 <img width="1888" height="918" alt="image" src="https://github.com/user-attachments/assets/8694fc57-219a-41d7-a40f-a9c230f746db" />
 <img width="1604" height="941" alt="image" src="https://github.com/user-attachments/assets/c1820aa0-3e18-46dd-8a16-e35a57a0374f" />
 <img width="1881" height="959" alt="image" src="https://github.com/user-attachments/assets/59d60fdf-b297-4e35-afd6-9c61864628ff" />
-<img width="1602" height="797" alt="image" src="https://github.com/user-attachments/assets/484c2ca6-9b35-46b8-85d6-8bad4a75a9d4" />
 <img width="1573" height="914" alt="image" src="https://github.com/user-attachments/assets/6df3e0a1-9bcd-4f87-91ce-255d861af8ac" />
 <img width="591" height="742" alt="image" src="https://github.com/user-attachments/assets/6dc747c5-18af-4caa-9ebd-227b9d3e3e61" />
 <img width="537" height="774" alt="image" src="https://github.com/user-attachments/assets/fd41707e-b623-49a7-a79e-94c2c937b855" />
 <img width="1068" height="145" alt="image" src="https://github.com/user-attachments/assets/64d4fd0e-0aa1-4d53-a6e3-037a02807169" />
 <img width="978" height="145" alt="image" src="https://github.com/user-attachments/assets/91b5ae60-9488-49db-8581-2ec331f4f7b1" />
+<img width="1602" height="797" alt="image" src="https://github.com/user-attachments/assets/484c2ca6-9b35-46b8-85d6-8bad4a75a9d4" />
 
 
 
