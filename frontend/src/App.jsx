@@ -5,6 +5,7 @@ import EventsPage from './pages/EventsPage';
 import BookingPage from './pages/BookingPage';
 import MyBookingsPage from './pages/MyBookingsPage';
 import AdminPage from './pages/AdminPage';
+import ChatBot from './components/ChatBot';
 
 // ✅ Admin-only route guard
 function AdminRoute({ children }) {
@@ -60,6 +61,7 @@ export default function App() {
           </Routes>
         </main>
         <Footer />
+        <ChatBot />
       </div>
     </BrowserRouter>
   );
