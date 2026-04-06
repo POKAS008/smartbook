@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
-// ─── Styles (inject once) ─────────────────────────────────────────────────────
+const GEMINI_KEY = import.meta.env.VITE_GEMINI_KEY;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 .sb-fab{position:fixed;bottom:28px;right:28px;width:58px;height:58px;border-radius:50%;background:#6c63ff;color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,.45);z-index:9999;transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center}
@@ -39,26 +41,9 @@ const CSS = `
 .sb-send:disabled{opacity:.38;cursor:not-allowed}
 `;
 
-// ─── System prompt for SmartBook ──────────────────────────────────────────────
 const SYSTEM = `You are SmartBook Assistant, a friendly AI support agent for SmartBook — a real-time event booking platform built with Spring Boot, React, and PostgreSQL.
-
-You help users with:
-- Finding and browsing upcoming events
-- Checking seat availability
-- Booking tickets and understanding the checkout process
-- Cancelling or modifying bookings (free cancellation up to 24 hours before the event)
-- QR code ticket check-in (tickets are emailed after booking)
-- Account and login questions (JWT-secured)
-- Admin dashboard questions (revenue, occupancy analytics)
-
-Key platform facts:
-- Supports 150+ concurrent events with zero double-booking (pessimistic locking)
-- QR code tickets generated automatically after booking confirmation
-- Roles: USER and ADMIN (RBAC)
-- Cancellation: free up to 24 hrs before event, otherwise non-refundable
-- Events have: name, venue, date, total seats, available seats, price, category
-
-Keep responses concise, warm, and helpful. Use plain text. If the user wants to book or cancel, walk them through the steps clearly.`;
+You help users with finding events, checking availability, booking tickets, cancellations (free up to 24hrs before event), QR code check-in, and account questions.
+Keep responses concise, warm, and helpful. Use plain text.`;
 
 const QUICK = [
   "Show upcoming events",
@@ -77,7 +62,6 @@ export default function ChatBot() {
   const [showChips, setShowChips] = useState(true);
   const bottomRef = useRef(null);
 
-  // Inject CSS once
   useEffect(() => {
     if (!document.getElementById("sb-css")) {
       const s = document.createElement("style");
@@ -101,25 +85,28 @@ export default function ChatBot() {
     const history = [...msgs, { role: "user", text: userText }];
     setMsgs(history);
 
-    // Build messages array for API (role + content)
-    const apiMessages = history.map((m) => ({
-      role: m.role,
-      content: m.text,
-    }));
+    // Build Gemini-format contents (skip initial greeting)
+    const contents = history
+      .filter((m) => !(m.role === "assistant" && m.text.startsWith("Hi! 👋")))
+      .map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.text }],
+      }));
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(GEMINI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 500,
-          system: SYSTEM,
-          messages: apiMessages,
+          system_instruction: { parts: [{ text: SYSTEM }] },
+          contents,
+          generationConfig: { maxOutputTokens: 500, temperature: 0.7 },
         }),
       });
       const data = await res.json();
-      const reply = data.content?.[0]?.text || "Sorry, I couldn't get a response. Please try again.";
+      const reply =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Sorry, I couldn't get a response. Please try again.";
       setMsgs([...history, { role: "assistant", text: reply }]);
     } catch {
       setMsgs([...history, { role: "assistant", text: "Connection issue. Please try again in a moment." }]);
@@ -139,7 +126,7 @@ export default function ChatBot() {
             <div className="sb-head-icon">🎟</div>
             <div className="sb-head-info">
               <strong>SmartBook Assistant</strong>
-              <small>Powered by Claude AI</small>
+              <small>Powered by Gemini AI</small>
             </div>
             <button className="sb-head-close" onClick={() => setOpen(false)}>✕</button>
           </div>
